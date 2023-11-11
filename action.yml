@@ -1,0 +1,19 @@
+name: Google Calendar Subscriptions
+description: Sync your calendar subscriptions using the Google Calendar API
+author: Gabriele Canepa
+
+branding:
+  icon: calendar
+  color: blue
+
+inputs:
+  subscriptions-path:
+    description: Path to the file exporting the calendar subscriptions
+    required: true
+outputs:
+  subscriptions:
+    description: Calendar subscriptions including the synchronized events
+
+runs:
+  using: node20
+  main: build/index.js

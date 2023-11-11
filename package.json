@@ -1,0 +1,118 @@
+{
+  "name": "google-calendar-subscriptions-action",
+  "version": "0.0.1",
+  "description": "GitHub Action to customize and synchronize calendar subscriptions 📆",
+  "keywords": [
+    "actions",
+    "github-actions",
+    "google",
+    "google-calendar",
+    "google-calendar-api",
+    "google-calendar-client",
+    "google-calendar-subscriptions",
+    "google-calendar-synchronization",
+    "calendar-subscriptions",
+    "calendar-synchronization"
+  ],
+  "homepage": "https://github.com/gabrielecanepa/google-calendar-subscriptions-action",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielecanepa/google-calendar-subscriptions-action.git"
+  },
+  "bugs": "https://github.com/gabrielecanepa/google-calendar-subscriptions-action/issues",
+  "author": "Gabriele Canepa <contact@gabrielecanepa.com>",
+  "license": "MIT",
+  "exports": {
+    ".": "./build/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore(release): v${version}",
+      "tagAnnotation": "v${version}",
+      "push": false
+    },
+    "npm": {
+      "publish": false
+    },
+    "github": {
+      "release": true,
+      "releaseName": "v${version}",
+      "autoGenerate": true,
+      "comments": {
+        "submit": false,
+        "issue": "This issue has been resolved in v${version}. See [${releaseName}](${releaseUrl}) for release notes.",
+        "pr": "This pull request is included in v${version}. See [${releaseName}](${releaseUrl}) for release notes."
+      }
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "conventionalcommits"
+        },
+        "header": "# Changelog",
+        "infile": "CHANGELOG.md"
+      }
+    },
+    "hooks": {
+      "after:init": "yarn ci",
+      "after:bump": [
+        "yarn build",
+        "mkdir -p versions/${version} && cp README.md $_ && git add $_"
+      ],
+      "after:@release-it/conventional-changelog:bump": [
+        "cat CHANGELOG.md | gsed -E 's/^\\* ([a-z]*)/- \\u\\1/g' | tee CHANGELOG.md",
+        "git add CHANGELOG.md"
+      ],
+      "after:release": "echo Successfully released ${name}@${version}."
+    }
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "yarn lint:code && yarn lint:commits",
+    "lint:code": "eslint . --ext .ts",
+    "lint:code:fix": "yarn lint:code --fix",
+    "lint:commits": "commitlint --from origin/main --to HEAD --verbose",
+    "test": "jest && make-coverage-badge --output-path ./.github/badges/coverage.svg",
+    "ci": "yarn lint && yarn test",
+    "build:action": "ncc build src/index.ts --out build --license licenses.txt --minify",
+    "build:subscriptions": "ncc build test/subscriptions.ts --out build --minify",
+    "build": "yarn build:action && yarn build:subscriptions",
+    "all": "yarn ci && yarn build",
+    "release": "dotenv release-it --",
+    "release:major": "dotenv release-it -- --increment major --ci",
+    "release:minor": "dotenv release-it -- --increment minor --ci",
+    "release:patch": "dotenv release-it -- --increment patch --ci"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "google-calendar-subscriptions": "../google-calendar-subscriptions"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.1.0",
+    "@commitlint/config-conventional": "^18.1.0",
+    "@release-it/conventional-changelog": "^7.0.2",
+    "@types/jest": "^29.5.6",
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
+    "@vercel/ncc": "^0.38.1",
+    "dotenv": "^16.3.1",
+    "dotenv-cli": "^7.3.0",
+    "eslint": "^8.36.0",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "make-coverage-badge": "^1.2.0",
+    "release-it": "^16.2.1",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  }
+}

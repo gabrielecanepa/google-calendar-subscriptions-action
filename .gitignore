@@ -1,0 +1,6 @@
+.husky/_/
+build/
+node_modules/
+*.cache
+*.log
+.DS_Store
