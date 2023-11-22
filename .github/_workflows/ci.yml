@@ -1,0 +1,59 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - releases/*
+
+permissions:
+  contents: read
+
+jobs:
+  test-typescript:
+    name: TypeScript Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: yarn
+
+      - name: Install Dependencies
+        id: yarn-ci
+        run: yarn ci
+
+      - name: Lint
+        id: yarn-lint
+        run: yarn lint
+
+      - name: Test
+        id: yarn-test
+        run: yarn test
+
+  test-action:
+    name: GitHub Actions Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Google Calendar Subscriptions Action
+        id: test-action
+        uses: ./
+        with:
+          subscriptions-path: ./test/subscriptions.ts
+
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.subscriptions }}"
